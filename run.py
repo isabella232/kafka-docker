@@ -11,7 +11,7 @@ kafka_log_config_file = '/opt/kafka/config/log4j.properties'
 
 zk_container_addr = os.environ.get('ZOOKEEPER_PORT_2181_TCP_ADDR')
 zk_container_port = os.environ.get('ZOOKEEPER_PORT_2181_TCP_PORT')
-zk_nodes = os.environ.get('ZOOKEEPER_NODE_LIST', '').split(',')
+zk_nodes = filter(bool, os.environ.get('ZOOKEEPER_NODE_LIST', '').split(','))
 if not zk_nodes:
     zk_conn = "{}:{}".format(zk_container_addr, zk_container_port)
 else:
@@ -107,8 +107,10 @@ config_model = {
     'leader_rebalance': str(os.environ.get('AUTO_LEADER_REBALANCE', 'false').lower() == 'true').lower()
 }
 
+print("Kafka Config Model:")
 with open(kafka_config_file, "w+") as f:
     f.write(kafka_config_template % config_model)
+    print(kafka_config_template % config_model)
 
 with open(kafka_log_config_file, 'w+') as f:
     f.write(kafka_logging_template % {'log_pattern': log_pattern})
@@ -116,4 +118,5 @@ with open(kafka_log_config_file, 'w+') as f:
 os.environ['KAFKA_OPTS'] = os.environ.get('JVM_OPTS', '')
 
 # start Kafka
+print("OK! Starting Kafka:")
 os.execl('/opt/kafka/bin/kafka-server-start.sh', 'kafka', kafka_config_file)
