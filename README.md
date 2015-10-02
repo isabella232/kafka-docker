@@ -1,4 +1,4 @@
-[![Docker Repository on Quay.io](https://quay.io/repository/donatello/kafka/status "Docker Repository on Quay.io")](https://quay.io/repository/donatello/kafka)
+[![Docker Repository on Quay.io](https://quay.io/repository/plivo/kafka/status "Docker Repository on Quay.io")](https://quay.io/repository/plivo/kafka)
 
 # Kafka in a Docker Container #
 
