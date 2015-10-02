@@ -1,3 +1,5 @@
+[![Docker Repository on Quay.io](https://quay.io/repository/donatello/kafka/status "Docker Repository on Quay.io")](https://quay.io/repository/donatello/kafka)
+
 # Kafka in a Docker Container #
 
 ## Environment Variables ##
