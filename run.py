@@ -1,12 +1,21 @@
 #!/usr/bin/env python
 
 import os
+import socket
 # import sys
+
+container_ip = socket.gethostbyname(socket.gethostname())
 
 kafka_config_file = '/opt/kafka/config/server.properties'
 kafka_log_config_file = '/opt/kafka/config/log4j.properties'
 
-zk_nodes = os.environ['ZOOKEEPER_NODE_LIST'].split(',')
+zk_container_addr = os.environ.get('ZOOKEEPER_PORT_2181_TCP_ADDR')
+zk_container_port = os.environ.get('ZOOKEEPER_PORT_2181_TCP_PORT')
+zk_nodes = os.environ.get('ZOOKEEPER_NODE_LIST', '').split(',')
+if not zk_nodes:
+    zk_conn = "{}:{}".format(zk_container_addr, zk_container_port)
+else:
+    zk_conn = ",".join(map(lambda x: "{}:2181".format(x), zk_nodes))
 
 kafka_config_template = """# Kafka configuration
 broker.id=%(broker_id)d
@@ -73,7 +82,7 @@ replication = min(int(os.environ.get('REPLICATION', 2)), len(zk_nodes))
 
 config_model = {
     'broker_id': int(os.environ.get('BROKER_ID', 0)),
-    'host_address': os.environ['HOST_IP'],
+    'host_address': os.environ.get('HOST_IP', container_ip),
     'broker_port': 9092,
     'log_dirs': '/kafka',
     'num_partitions': int(os.environ.get('NUM_PARTITIONS', 8)),
@@ -85,8 +94,8 @@ config_model = {
     'log_segment_bytes': int(os.environ.get('LOG_SEGMENT_BYTES', 1073741824)),
     # Minimum interval between rolling new log segments (default 1 week)
     'log_roll_hours': int(os.environ.get('LOG_ROLL_HOURS', 24 * 7)),
-    'zookeeper_nodes': ",".join(map(lambda x: "{}:2181".format(x), zk_nodes)),
-    'zookeeper_base': os.environ.get('ZOOKEEPER_BASE'),
+    'zookeeper_nodes': zk_conn,
+    'zookeeper_base': os.environ.get('ZOOKEEPER_BASE', ''),
     'flush_interval_ms': int(os.environ.get('FLUSH_INTERVAL_MS', 10000)),
     'flush_interval_msgs': int(os.environ.get('FLUSH_INTERVAL_MSGS', 10000)),
     'num_threads': int(os.environ.get('NUM_THREADS', 8)),
